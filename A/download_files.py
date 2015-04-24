@@ -124,6 +124,10 @@ class CocosZipInstaller(object):
         print("==> Downloading finished!")
         f.close()
 
+    def ensure_directory(self, target):
+        if not os.path.exists(target):
+            os.mkdir(target)
+
     def unpack_zipfile(self, extract_dir):
         """Unpack zip `filename` to `extract_dir`
 
