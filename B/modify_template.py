@@ -69,16 +69,9 @@ def modify_win32(proj_file_path):
     vcx_proj.add_include_dirs('$(_COCOS_HEADER_WIN32_END)')
     vcx_proj.add_lib('$(_COCOS_LIB_WIN32_BEGIN)')
     vcx_proj.add_lib('$(_COCOS_LIB_WIN32_END)')
-    # vcx_proj.add_addition_lib('$(_COCOS_LIB_PATH_WIN32_BEGIN)')
-    # vcx_proj.add_addition_lib('$(_COCOS_LIB_PATH_WIN32_END)')
-    # PreLinkEvent xcopy "$(ProjectDir)..\Resources" "$(OutDir)"
-    vcx_proj.remove_proj_reference('..\cocos2d\cocos\2d\cocos2d.vcxproj')
-    vcx_proj.remove_proj_reference('..\cocos2d\cocos\audio\proj.win32\CocosDenshion.vcxproj')
-    vcx_proj.remove_proj_reference('..\cocos2d\external\chipmunk\proj.win32\chipmunk.vcxproj')
-
-    # vcx_proj.add_proj_reference('..\cocos2d\cocos\2d\libcocos2d.vcxproj')
-    # vcx_proj.add_proj_reference('..\cocos2d\cocos\editor-support\spine\proj.win32\libSpine.vcxproj')
-    # vcx_proj.add_proj_reference('..\cocos2d\external\Box2D\proj.win32\libbox2d.vcxproj')
-
-
+    vcx_proj.replace_proj_reference('..\\cocos2d\\cocos\\2d\\cocos2d.vcxproj', '..\\cocos2d\\cocos\\2d\\libcocos2d.vcxproj')
+    vcx_proj.remove_proj_reference('..\\cocos2d\\cocos\\audio\\proj.win32\\CocosDenshion.vcxproj')
+    vcx_proj.remove_proj_reference('..\\cocos2d\\external\\chipmunk\\proj.win32\\chipmunk.vcxproj')
+    vcx_proj.add_proj_reference('..\\cocos2d\\cocos\\editor-support\\spine\\proj.win32\\libSpine.vcxproj')
+    vcx_proj.add_proj_reference('..\\cocos2d\\external\\Box2D\\proj.win32\\libbox2d.vcxproj')
     vcx_proj.save()

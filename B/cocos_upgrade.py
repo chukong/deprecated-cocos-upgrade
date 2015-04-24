@@ -91,15 +91,14 @@ if __name__ == '__main__':
         excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks'), temp_path1)
         excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'runtime'), temp_path2)
         excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'tools'), temp_path3)
-
     if project_type == 'js' or project_type == 'lua':
         real_project_path = os.path.join(target_project_path, 'frameworks', 'runtime-src')
     elif project_type == 'cpp':
         real_project_path = target_project_path
 
-    # proj_file_path = os.path.join(real_project_path, 'proj.win32/%s.vcxproj' % args.projName)
-    # cocos.Logging.info("> Modifing visual studio project for win32 ... ")
-    # modify_template.modify_win32(proj_file_path)
+    proj_file_path = os.path.join(real_project_path, 'proj.win32/%s.vcxproj' % args.projName)
+    cocos.Logging.info("> Modifing visual studio project for win32 ... ")
+    modify_template.modify_win32(proj_file_path)
 
     proj_file_path = os.path.join(real_project_path, 'proj.ios_mac/%s.xcodeproj/project.pbxproj' % args.projName)
     cocos.Logging.info("> Modifing xcode project for iOS&Mac ... ")

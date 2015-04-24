@@ -178,37 +178,50 @@ class VCXProject(object):
     def add_include_dirs(self, path):
         cfg_nodes = self.root_node.getElementsByTagName("ItemDefinitionGroup")
         for cfg_node in cfg_nodes:
-            compile_node = cfg_node.getElementsByTagName("ClCompile")
-            include_node = compile_node.getElementsByTagName("AdditionalIncludeDirectories")
+            compile_node = self.get_or_create_node(cfg_node, "ClCompile")
+            include_node = self.get_or_create_node(compile_node, "AdditionalIncludeDirectories")
             include_node.firstChild.nodeValue += ';' + path
 
-    def remove_proj_reference(self, path):
+    def replace_proj_reference(self, value, replace):
         itemgroups = self.root_node.getElementsByTagName("ItemGroup")
         for item in itemgroups:
             proj_refers = item.getElementsByTagName("ProjectReference")
-            if proj_refers.firstChild.nodeValue == path:
-                self.root_node.removeChild(item)
+            for proj_refer in proj_refers:
+                if proj_refer.attributes["Include"].value == value:
+                    proj_refer.attributes["Include"].value = replace
+                    break
 
-    def add_proj_reference(self, path):
+    def remove_proj_reference(self, value):
+        itemgroups = self.root_node.getElementsByTagName("ItemGroup")
+        for item in itemgroups:
+            proj_refers = item.getElementsByTagName("ProjectReference")
+            for proj_refer in proj_refers:
+                if proj_refer.attributes["Include"].value == value:
+                    item.removeChild(proj_refer)
+                    break
+
+    def add_proj_reference(self, value):
         itemgroups = self.root_node.getElementsByTagName("ItemGroup")
         find = False
         for item in itemgroups:
             proj_refers = item.getElementsByTagName("ProjectReference")
-            if proj_refers.firstChild.nodeValue == path:
-                find = True
-                break
+            for proj_refer in proj_refers:
+                if proj_refer.attributes["Include"].value == value:
+                    find = True
+                    break
 
-        if find:
+        if not find:
             node = self.xmldoc.createElement('ProjectReference')
-            node.setAttribute('Include', path)
+            node.setAttribute('Include', value)
 
             childNode = self.xmldoc.createElement('Project')
-            childNode.nodeValue = 'afdasd'
+            childNode.nodeValue = "afdasd"
             node.appendChild(childNode)
 
-            childNode = self.xmldoc.createElement('ReferenceOutputAssembly')
-            childNode.nodeValue = False
-            node.appendChild(childNode)
+            # childNode = self.xmldoc.createElement('ReferenceOutputAssembly')
+            # childNode.nodeValue = False
+            # node.appendChild(childNode)
+            item.appendChild(node)
 
     def remove_predefine_macro(self, macro, config=None):
         cfg_nodes = self.root_node.getElementsByTagName("ItemDefinitionGroup")
