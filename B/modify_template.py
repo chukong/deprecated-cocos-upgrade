@@ -63,10 +63,8 @@ def modify_win32(proj_file_path):
         cocos.Logging.warning("> File is not exist: %s" % proj_file_path)
         sys.exit(1)
 
-    # Remove library dependency in xcode project file.
-    #proj_file_path = "/Users/calf/Documents/CocosUpgrade/HelloWorld/proj.win32/HelloWorld.vcxproj"
+    # Remove library dependency in visual studio project file.
     vcx_proj = modify_vcxproj.VCXProject(proj_file_path)
-
     vcx_proj.add_include_dirs('$(_COCOS_HEADER_WIN32_BEGIN)')
     vcx_proj.add_include_dirs('$(_COCOS_HEADER_WIN32_END)')
     vcx_proj.add_lib('$(_COCOS_LIB_WIN32_BEGIN)')

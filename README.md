@@ -1,5 +1,5 @@
 
-#<span id="jumpA">升级引擎工具A篇</span>
+#<a name="jumpA">升级引擎工具A篇
 
 ##适用范围
 对引擎源码没有修改或扩展的cocos2d-x/lua/js项目，或者只做过少量修改。否则请查看[升级引擎工具B篇](#jumpB)。
@@ -47,7 +47,7 @@
 `特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade`
 
 
-##<span id="jump1">制作升级文件</span>
+##<a name="jump1">制作升级文件
 例如，你的游戏工程是基于Cocos2d-x 3.2
 开发，希望升级到3.5，那么你需要用3.2创建A工程，再用3.5创建另外一个B工程，我们提供了一个工具帮助你制作属于自己的补丁。生成的文件A-B.diff在当前目录下。
 
@@ -68,7 +68,7 @@
 如果冲突太多，无法解决，请阅读[升级引擎工具B篇](#jumpB)。
 
 
-#<span id="jumpB">升级引擎工具B篇</span>
+#<a name="jumpB">升级引擎工具B篇
 
 ##适用范围
 所有cocos2d-x/lua/js项目。用此工具升级，需开发者自行对比升级后的差异。希望自动升级请查看[升级引擎工具A篇。](#jumpA)
@@ -118,6 +118,7 @@
 #####4 Diffmerge有一些异常情况如下：
 
 这种表示二进制文件不同，这种情况不用关注，直接关闭退出Diffmerge。
+
 ![Mou icon](https://github.com/calfjohn/cocosUpgrade/blob/SemiAutomatic/images/BinaryCompare.jpg?raw=true)
 
 
@@ -126,7 +127,7 @@
 ![Mou icon](https://github.com/calfjohn/cocosUpgrade/blob/SemiAutomatic/images/NotFoundFile.jpg?raw=true)
 
 
-##<span id="jump2">支持的版本</span>
+##<a name="jump2">支持的版本
 
 目前只支持从低版本升级到高版本，版本在以下范围内才能升级。
 
