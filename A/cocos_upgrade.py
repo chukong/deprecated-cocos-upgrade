@@ -68,7 +68,7 @@ if __name__ == '__main__':
     project_version = project_version.split(' ')[1]
 
     # Download zip file or file.
-    patch_file_url = str.format('%s/ftp/%s/%s_%s/%s' % (FILES_SERVER_URL, project_type, project_version, args.upgradeVersion, PATCH_ZIP_FILE_NAME))
+    patch_file_url = str.format('%s/ftp/A/%s/%s_%s/%s' % (FILES_SERVER_URL, project_type, project_version, args.upgradeVersion, PATCH_ZIP_FILE_NAME))
     patch_path = str.format('%s/%s/%s_%s' % (os.getcwd(), project_type, project_version, args.upgradeVersion))
     if not os.path.exists(patch_path):
         os.makedirs(patch_path)
@@ -90,5 +90,3 @@ if __name__ == '__main__':
     ret = subprocess.call(cmd, cwd=os.getcwd(), shell=True)
     if ret != 0:
         sys.exit(1)
-
-    os.remove(patch_file_path)

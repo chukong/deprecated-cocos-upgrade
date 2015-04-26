@@ -12,11 +12,36 @@ import sys
 import excopy
 import cocos
 import modify_file
-import modify_template
+import download_files
 import subprocess
 from argparse import ArgumentParser
 
 UPGRADE_PATH = 'Upgrade'
+PATCH_FILE_NAME = '0001-Upgrade.patch'
+FILES_SERVER_URL = 'http://cocos.qudao.info'
+version_files = ['cocos2d/cocos/cocos2d.cpp',
+                 'cocos2d/cocos/2d/cocos2d.cpp',
+                 'frameworks/cocos2d-x/cocos/cocos2d.cpp',
+                 'frameworks/cocos2d-x/cocos/2d/cocos2d.cpp',
+                 'frameworks/js-bindings/bindings/manual/ScriptingCore.h']
+
+def get_project_version(path, project_type):
+    file_path = None
+    for file in version_files:
+        file_path = os.path.join(path, file)
+        if os.path.exists(file_path):
+            break
+
+    if file_path is None:
+        sys.exit(1)
+
+    file_modifier = modify_file.FileModifier(file_path)
+    if project_type == 'js':
+        return file_modifier.findEngineVesion(r".*#define[ \t]+ENGINE_VERSION[ \t]+\"(.*)\"")
+    elif project_type == 'lua' or project_type == 'cpp':
+        return file_modifier.findEngineVesion(r".*return[ \t]+\"(.*)\";")
+
+    return None
 
 if __name__ == '__main__':
     parser = ArgumentParser(description='Generate prebuilt engine for Cocos Engine.')
@@ -41,6 +66,8 @@ if __name__ == '__main__':
     if project_type is None:
         cocos.Logging.error("> This is not a cocos2d project.")
         sys.exit(1)
+    project_version = get_project_version(args.projPath, project_type)
+    project_version = project_version.split(' ')[1]
 
     # Create project.
     target_path = args.projPath + UPGRADE_PATH
@@ -69,68 +96,95 @@ if __name__ == '__main__':
         if ret != 0:
             sys.exit(1)
 
-    cocos.Logging.info("> Copying cocos2d from engine directory ...")
+    cocos.Logging.info("> Upgrade engine ...")
     if project_type == 'cpp':
         temp_path = os.path.join(target_project_path, 'cocos2d')
         excopy.remove_directory(temp_path)
         excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'cocos2d'), temp_path)
     elif project_type == 'lua':
-        temp_path1 = os.path.join(target_project_path, 'frameworks')
+        temp_path1 = os.path.join(target_project_path, 'frameworks', 'cocos2d-x')
         excopy.remove_directory(temp_path1)
         temp_path2 = os.path.join(target_project_path, 'runtime')
         excopy.remove_directory(temp_path2)
-        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks'), temp_path1)
+        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks', 'cocos2d-x'), temp_path1)
         excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'runtime'), temp_path2)
     elif project_type == 'js':
-        temp_path1 = os.path.join(target_project_path, 'frameworks')
+        temp_path1 = os.path.join(target_project_path, 'frameworks', 'cocos2d-html5')
         excopy.remove_directory(temp_path1)
-        temp_path2 = os.path.join(target_project_path, 'runtime')
+        temp_path2 = os.path.join(target_project_path, 'frameworks', 'js-bindings')
+        excopy.remove_directory(temp_path1)
+        temp_path3 = os.path.join(target_project_path, 'runtime')
         excopy.remove_directory(temp_path2)
-        temp_path3 = os.path.join(target_project_path, 'tools')
+        temp_path4 = os.path.join(target_project_path, 'tools')
         excopy.remove_directory(temp_path3)
-        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks'), temp_path1)
-        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'runtime'), temp_path2)
-        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'tools'), temp_path3)
+        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks', 'cocos2d-html5'), temp_path1)
+        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'frameworks' 'js-bindings'), temp_path2)
+        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'runtime'), temp_path3)
+        excopy.copy_directory(os.path.join(temp_project_path, args.projName, 'tools'), temp_path4)
+
     if project_type == 'js' or project_type == 'lua':
         real_project_path = os.path.join(target_project_path, 'frameworks', 'runtime-src')
     elif project_type == 'cpp':
         real_project_path = target_project_path
 
-    proj_file_path = os.path.join(real_project_path, 'proj.win32/%s.vcxproj' % args.projName)
-    cocos.Logging.info("> Modifing visual studio project for win32 ... ")
-    modify_template.modify_win32(proj_file_path)
+    upgradeVersion = get_project_version(target_project_path, project_type)
+    upgradeVersion = upgradeVersion.split(' ')[1]
 
-    proj_file_path = os.path.join(real_project_path, 'proj.ios_mac/%s.xcodeproj/project.pbxproj' % args.projName)
-    cocos.Logging.info("> Modifing xcode project for iOS&Mac ... ")
-    modify_template.modify_mac_ios(proj_file_path)
+    # Download zip file or file.
+    patch_file_url = str.format('%s/ftp/B/%s/%s_%s/%s' %
+                                (FILES_SERVER_URL, project_type, project_version, upgradeVersion, PATCH_FILE_NAME))
+    patch_path = str.format('%s/%s/%s_%s' % (os.getcwd(), project_type, project_version, upgradeVersion))
+    if not os.path.exists(patch_path):
+        os.makedirs(patch_path)
 
-    mk_file_path = os.path.join(real_project_path, 'proj.android/jni/Android.mk')
-    cocos.Logging.info("> Modifing mk file for Android ...")
-    modify_template.modify_android(mk_file_path)
+    patch_file_path = str.format('%s/%s' % (patch_path, PATCH_FILE_NAME))
+    if not os.path.exists(patch_file_path):
+        installer = download_files.CocosZipInstaller(patch_file_url, patch_file_path)
+        installer.download_file()
 
-    modify_file_path = os.path.join(real_project_path, 'proj.android/project.properties')
-    fileModifier = modify_file.FileModifier(modify_file_path)
-    fileModifier.replaceString('../cocos2d/cocos/platform/android/java', '../cocos2d/cocos/2d/platform/android/java')
-    fileModifier.save()
+   # Apply patch
+    cmd = str.format('python cocos_upgrade2.py -d %s -n %s -p %s ' %
+                     (target_project_path, args.projName, patch_file_path))
+    ret = subprocess.call(cmd, cwd=os.getcwd(), shell=True)
+    if ret != 0:
+        sys.exit(1)
 
-    modify_file_path = os.path.join(real_project_path, 'proj.ios_mac/ios/AppController.mm')
-    fileModifier = modify_file.FileModifier(modify_file_path)
-    fileModifier.replaceString('platform/ios/CCEAGLView-ios.h', 'CCEAGLView.h')
-    fileModifier.replaceString('GLViewImpl::create', 'GLView::create')
-    fileModifier.save()
-
-    modify_file_path = os.path.join(real_project_path, 'proj.ios_mac/ios/RootViewController.mm')
-    fileModifier = modify_file.FileModifier(modify_file_path)
-    fileModifier.replaceString('platform/ios/CCEAGLView-ios.h', 'CCEAGLView.h')
-    fileModifier.save()
-
-    modify_file_path = os.path.join(real_project_path, 'Classes/AppDelegate.cpp')
-    fileModifier = modify_file.FileModifier(modify_file_path)
-    fileModifier.replaceString('GLViewImpl::create', 'GLView::create')
-    fileModifier.save()
-
-    manifest_file_path = os.path.join(real_project_path, 'proj.android/AndroidManifest.xml')
-    modify_template.modify_manifest(manifest_file_path)
+    # cocos.Logging.info("> Upgrade project ...")
+    # proj_file_path = os.path.join(real_project_path, 'proj.win32/%s.vcxproj' % args.projName)
+    # cocos.Logging.info("> Modifing visual studio project for win32 ... ")
+    # modify_template.modify_win32(proj_file_path)
+    #
+    # proj_file_path = os.path.join(real_project_path, 'proj.ios_mac/%s.xcodeproj/project.pbxproj' % args.projName)
+    # cocos.Logging.info("> Modifing xcode project for iOS&Mac ... ")
+    # modify_template.modify_mac_ios(proj_file_path)
+    #
+    # mk_file_path = os.path.join(real_project_path, 'proj.android/jni/Android.mk')
+    # cocos.Logging.info("> Modifing mk file for Android ...")
+    # modify_template.modify_android(mk_file_path)
+    #
+    # modify_file_path = os.path.join(real_project_path, 'proj.android/project.properties')
+    # fileModifier = modify_file.FileModifier(modify_file_path)
+    # fileModifier.replaceString('../cocos2d/cocos/platform/android/java', '../cocos2d/cocos/2d/platform/android/java')
+    # fileModifier.save()
+    #
+    # modify_file_path = os.path.join(real_project_path, 'proj.ios_mac/ios/AppController.mm')
+    # fileModifier = modify_file.FileModifier(modify_file_path)
+    # fileModifier.replaceString('platform/ios/CCEAGLView-ios.h', 'CCEAGLView.h')
+    # fileModifier.replaceString('GLViewImpl::create', 'GLView::create')
+    # fileModifier.save()
+    #
+    # modify_file_path = os.path.join(real_project_path, 'proj.ios_mac/ios/RootViewController.mm')
+    # fileModifier = modify_file.FileModifier(modify_file_path)
+    # fileModifier.replaceString('platform/ios/CCEAGLView-ios.h', 'CCEAGLView.h')
+    # fileModifier.save()
+    #
+    # modify_file_path = os.path.join(real_project_path, 'Classes/AppDelegate.cpp')
+    # fileModifier = modify_file.FileModifier(modify_file_path)
+    # fileModifier.replaceString('GLViewImpl::create', 'GLView::create')
+    # fileModifier.save()
+    #
+    # manifest_file_path = os.path.join(real_project_path, 'proj.android/AndroidManifest.xml')
+    # modify_template.modify_manifest(manifest_file_path)
 
     cmd = str.format('python cocos_compare.py -s %s -d %s -o %s ' %
                      (args.projPath, target_project_path, os.path.join(origin_project_path, args.projName)))
