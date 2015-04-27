@@ -66,6 +66,10 @@ if __name__ == '__main__':
 
     for rejectFile in files:
         originFile, extension = os.path.splitext(rejectFile)
+        temp, extension = os.path.splitext(originFile)
+        # Wiggle would causes conflicts in these files that is hard to resolve, so we leave those to you.
+        if extension == '.pbxproj' or extension == '.filters' or extension == '.vcxproj':
+            continue
         cmd = str.format("wiggle --replace %s %s" % (originFile, rejectFile))
         ret = subprocess.call(cmd, cwd=target_project_path, shell=True)
 
