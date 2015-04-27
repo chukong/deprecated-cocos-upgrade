@@ -93,7 +93,7 @@
 
 ##如何使用
 
-	$ python cocos_upgrade.py -s /Users/cocos2d-x-3.2 -d /Users/cocos2d-x-3.5 -p /Users/testProject
+	$ python cocos_upgrade.py -s /Users/cocos2d-x-3.2 -d /Users/cocos2d-x-3.5 -p /Users/testProject -n testProject
 
 -s 原引擎目录，请使用全路径。
 
@@ -101,7 +101,9 @@
 
 -p 待升级的工程目录，请使用全路径。
 
-`特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade/target／testProject`
+-n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
+
+`特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade/target/testProject`
 	
 ##升级说明
 #####1 升级工具会替换引擎目录，修改游戏工程配置(.pbproj/.mk/.sln等）文件
