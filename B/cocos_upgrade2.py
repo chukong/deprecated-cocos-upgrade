@@ -35,7 +35,7 @@ if __name__ == '__main__':
     print('Receive arguments target:%s name:%s patch:%s' % (args.projPath, args.projName, args.patchFile))
 
     target_project_path = args.projPath
-    diff_path = os.path.join(os.getcwd(), 'temp.diff')
+    diff_path = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'temp.diff')
     if os.path.exists(diff_path):
         os.remove(diff_path)
 

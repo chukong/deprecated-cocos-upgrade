@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     print('Receive arguments src:%s dst:%s ori:%s' % (args.projSourcePath, args.projUpgradePath, args.projOriginPatch))
 
-    diff_file = os.path.join(os.getcwd(), 'diff')
+    diff_file = os.path.join(os.path.realpath(os.path.dirname(__file__)), 'diff')
     if os.path.exists(diff_file):
         os.remove(diff_file)
 

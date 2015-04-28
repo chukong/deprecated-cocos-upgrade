@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     # Download zip file or file.
     patch_file_url = str.format('%s/ftp/A/%s/%s_%s/%s' % (FILES_SERVER_URL, project_type, project_version, args.upgradeVersion, PATCH_ZIP_FILE_NAME))
-    patch_path = str.format('%s/%s/%s_%s' % (os.getcwd(), project_type, project_version, args.upgradeVersion))
+    patch_path = str.format('%s/%s/%s_%s' % (os.path.realpath(os.path.dirname(__file__)), project_type, project_version, args.upgradeVersion))
     if not os.path.exists(patch_path):
         os.makedirs(patch_path)
 
@@ -87,6 +87,6 @@ if __name__ == '__main__':
 
     cmd = str.format('python cocos_upgrade2.py -d %s -n %s -p %s ' %
                      (args.projPath, args.projName, patch_file_path))
-    ret = subprocess.call(cmd, cwd=os.getcwd(), shell=True)
+    ret = subprocess.call(cmd, cwd=os.path.realpath(os.path.dirname(__file__)), shell=True)
     if ret != 0:
         sys.exit(1)
