@@ -24,9 +24,7 @@
 
 有两种升级方式，请按自己的情况选择。
 
-第一种方式，会根据游戏工程的引擎版本自动寻找下载对应的升级文件。
-
-第二种方式，你需要自行指定升级文件，不过你可以自己创建符合自己需求的升级文件，请查看[制作升级文件](#jump1)。
+####第一种方式，会根据游戏工程的引擎版本自动寻找下载对应的升级文件。
 
 	$ python cocos_upgrade.py -d /Users/testProject -n testProject -v 3.5
 	
@@ -36,7 +34,11 @@
 
 -v 要升级的引擎版本，请查看[支持的版本](#jump2)。
 
+
+####第二种方式，你需要自行指定升级文件，不过你可以自己创建符合自己需求的升级文件，请查看[制作升级文件](#jump1)。
+
 	$ python cocos_upgrade2.py -d /Users/testProject -n testProject -p /Users/test30-35.diff
+
 
 -d 游戏工程目录，请使用工程全路径。
 
@@ -51,11 +53,19 @@
 例如，你的游戏工程是基于Cocos2d-x 3.2
 开发，希望升级到3.5，那么你需要用3.2创建A工程，再用3.5创建另外一个B工程，我们提供了一个工具帮助你制作属于自己的补丁。生成的文件A-B.diff在当前目录下。
 
-	$ python cocos_make_patch.py -s A -d B
+	$ python cocos_make_patch.py -s A -d B -o /Users/patchFilePath -l cpp -n testProject -p org.cocos2dx.game
 
--s 要升级的工程，请使用工程全路径。
+-s 新建空白工程，基于3.2引擎版本，请使用工程全路径。
 
--d 升级目标工程，请使用工程全路径。
+-d 新建空白工程，基于3.5引擎版本，请使用工程全路径。
+
+-o 升级文件输出目录
+
+-l 工程类型，js/lua/cpp
+
+-n 工程名称
+
+-p 工程包名，比如org.cocos2dx.game
 
 最后调用cocos_upgrade2.py来调用补丁进行升级。
 
@@ -91,6 +101,21 @@
 
 [请到这里下载。](http://www.cocos2d-x.org/download/version)
 
+#####5 保证git能正常运行
+	$ git version
+	git version 1.9.3 (Apple Git-50)
+#####6 以下内容加入~/.bash_profile 或 ~/.zshrc
+	export LC_CTYPE=C 
+	export LANG=C
+
+#####7 安装wiggle
+	$ sudo apt-get install -y wiggle
+	or
+	$ brew install -y wiggle
+	
+	$ wiggle --version
+	wiggle 1.0 2013-08-23 GPL-2+ http://neil.brown.name/wiggle/
+	
 ##如何使用
 
 	$ python cocos_upgrade.py -s /Users/cocos2d-x-3.2 -d /Users/cocos2d-x-3.5 -p /Users/testProject -n testProject
