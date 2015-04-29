@@ -15,6 +15,8 @@ import excopy
 import shutil
 from argparse import ArgumentParser
 
+PROJECT_NAME = 'testProject'
+PACAKGE_NAME = 'org.cocos2dx.hellocpp'
 
 def remove_dir_except(root_dir, excpet):
     filelist = os.listdir(root_dir)
@@ -31,8 +33,6 @@ if __name__ == '__main__':
     parser.add_argument('-d', dest='target_cocos', help='Target Cocos engine path')
     parser.add_argument('-o', dest='output_dir', help='The default is patch')
     parser.add_argument('-l', dest='project_type', help='cpp, lua or js')
-    parser.add_argument('-n', dest='project_name', help='The project name')
-    parser.add_argument('-p', dest='package_name', help='The package name')
 
     (args, unknown) = parser.parse_known_args()
     if len(unknown) > 0:
@@ -65,27 +65,27 @@ if __name__ == '__main__':
     cocos.Logging.info("> Preparing patch file ...")
     cocos_console_path = str.format('%s/tools/cocos2d-console/bin/cocos' % args.source_cocos)
     cmd = str.format('%s new -l %s %s -p %s -d %s' %
-                     (cocos_console_path, args.project_type, args.project_name, args.package_name, source_path))
+                     (cocos_console_path, args.project_type, PROJECT_NAME, PACAKGE_NAME, source_path))
     ret = subprocess.call(cmd, shell=True)
     if ret != 0:
         sys.exit(1)
 
     cocos_console_path = str.format('%s/tools/cocos2d-console/bin/cocos' % args.target_cocos)
     cmd = str.format('%s new -l %s %s -p %s -d %s' %
-                     (cocos_console_path, args.project_type, args.project_name, args.package_name, target_path))
+                     (cocos_console_path, args.project_type, PROJECT_NAME, PACAKGE_NAME, target_path))
     ret = subprocess.call(cmd, shell=True)
     if ret != 0:
         sys.exit(1)
 
     # Create patch.
-    work_path = os.path.join(source_path, args.project_name)
+    work_path = os.path.join(source_path, PROJECT_NAME)
     cmd = "git init \n git add -A \n git commit -m \'Init project for cocos upgrade.\'"
     ret = subprocess.call(cmd, cwd=work_path, shell=True)
     if ret != 0:
         sys.exit(1)
 
     remove_dir_except(work_path, '.git')
-    excopy.copy_files_in_dir(os.path.join(target_path, args.project_name), work_path)
+    excopy.copy_files_in_dir(os.path.join(target_path, PROJECT_NAME), work_path)
 
     cmd = "git add -A \n git commit -m \'Upgrade\'\ngit tag cocos_upgrade"
     ret = subprocess.call(cmd, cwd=work_path, shell=True)
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     if ret != 0:
         sys.exit(1)
 
-    shutil.rmtree(source_path);
-    shutil.rmtree(target_path);
+    shutil.rmtree(source_path)
+    shutil.rmtree(target_path)
 
 

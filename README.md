@@ -53,7 +53,7 @@
 例如，你的游戏工程是基于Cocos2d-x 3.2
 开发，希望升级到3.5，那么你需要用3.2创建A工程，再用3.5创建另外一个B工程，我们提供了一个工具帮助你制作属于自己的补丁。生成的文件A-B.diff在当前目录下。
 
-	$ python cocos_make_patch.py -s A -d B -o /Users/patchFilePath -l cpp -n testProject -p org.cocos2dx.game
+	$ python cocos_make_patch.py -s A -d B -o /Users/patchFilePath -l cpp
 
 -s 新建空白工程，基于3.2引擎版本，请使用工程全路径。
 
@@ -62,10 +62,6 @@
 -o 升级文件输出目录
 
 -l 工程类型，js/lua/cpp
-
--n 工程名称
-
--p 工程包名，比如org.cocos2dx.game
 
 最后调用cocos_upgrade2.py来调用补丁进行升级。
 
