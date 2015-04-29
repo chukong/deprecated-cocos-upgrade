@@ -2,7 +2,7 @@
 #<a name="jumpA">升级引擎工具A篇
 
 ##适用范围
-对引擎源码没有修改或扩展的cocos2d-x/lua/js项目，或者只做过少量修改。否则请查看[升级引擎工具B篇](#jumpB)。目前仅支持Mac平台，windows平台支持开发中。
+对引擎源码没有修改或扩展的cocos2d-x/lua/js项目，或者只做过少量修改。否则请查看[升级引擎工具B篇](#jumpB)。此工具目前仅支持Mac平台，windows平台支持开发中。升级范围包括ios/mac/android平台，win32/win8/linux未充分验证。
 
 ##准备工作
 #####1 保证git能正常运行
@@ -86,7 +86,7 @@ sed: RE error: illegal byte sequence
 #<a name="jumpB">升级引擎工具B篇
 
 ##适用范围
-所有cocos2d-x/lua/js项目。用此工具升级，需开发者自行对比升级后的差异。希望自动升级请查看[升级引擎工具A篇。](#jumpA)。目前仅支持Mac平台，windows平台支持开发中。
+所有cocos2d-x/lua/js项目。用此工具升级，需开发者自行对比升级后的差异。希望自动升级请查看[升级引擎工具A篇。](#jumpA)。此工具目前仅支持Mac平台，windows平台支持开发中。升级范围包括ios/mac/android平台，win32/win8/linux未充分验证。
 
 ##准备工作
 #####1 下载安装
@@ -133,7 +133,7 @@ sed: RE error: illegal byte sequence
 
 -n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
 
-`特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade/target/testProject`
+`特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade/Target/testProject`
 	
 ##升级说明
 #####1 升级工具会替换引擎目录，修改游戏工程配置(.pbproj/.mk/.sln等）文件
