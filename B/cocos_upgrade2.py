@@ -45,6 +45,11 @@ if __name__ == '__main__':
     # if ret != 0:
     #     sys.exit(1)
 
+    cmd = "export LANG=C\nexport LANG=C"
+    ret = subprocess.call(cmd, shell=True)
+    if ret != 0:
+        sys.exit(1)
+        
     cmd = str.format('sed -e \'s/%s/%s/g\' %s > %s'
                      % (REPLACE_NAME, args.projName, args.patchFile, diff_path))
     ret = subprocess.call(cmd, shell=True)

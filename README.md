@@ -9,8 +9,12 @@
 	$ git version
 	git version 1.9.3 (Apple Git-50)
 #####2 以下内容加入~/.bash_profile 或 ~/.zshrc
+
 	export LC_CTYPE=C 
 	export LANG=C
+
+这是为了解决这个问题
+sed: RE error: illegal byte sequence
 
 #####3 安装wiggle
 	$ sudo apt-get install -y wiggle
