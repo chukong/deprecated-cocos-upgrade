@@ -19,6 +19,11 @@
 	
 	$ wiggle --version
 	wiggle 1.0 2013-08-23 GPL-2+ http://neil.brown.name/wiggle/
+	
+如果你没有brew，请运行下面的命令安装
+
+	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
 
 ##如何使用
 
@@ -51,9 +56,9 @@
 
 ##<a name="jump1">制作升级文件
 例如，你的游戏工程是基于Cocos2d-x 3.2
-开发，希望升级到3.5，那么你需要用3.2创建A工程，再用3.5创建另外一个B工程，我们提供了一个工具帮助你制作属于自己的补丁。生成的文件A-B.diff在当前目录下。
+开发，希望升级到3.5，那么你需要下载Cocos2d-x 3.2和Cocos2d-x 3.5，利用下面的工具制作补丁文件，生成的文件0001-Upgrade.patch在输出目录下。
 
-	$ python cocos_make_patch.py -s A -d B -o /Users/patchFilePath -l cpp
+	$ python cocos_make_patch.py -s 3.2引擎目录 -d 3.5引擎目录 -o /Users/patchFilePath -l cpp
 
 -s 新建空白工程，基于3.2引擎版本，请使用工程全路径。
 
