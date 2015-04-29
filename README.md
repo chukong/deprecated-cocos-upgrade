@@ -46,7 +46,7 @@ sed: RE error: illegal byte sequence
 
 ####第二种方式，你需要自行指定升级文件，不过你可以自己创建符合自己需求的升级文件，请查看[制作升级文件](#jump1)。
 
-	$ python cocos_upgrade2.py -d /Users/testProject -n testProject -p /Users/test30-35.diff
+	$ python cocos_upgrade2.py -d /Users/testProject -n testProject -p /Users/patchFilePath/0001-Upgrade.patch
 
 
 -d 游戏工程目录，请使用工程全路径。
