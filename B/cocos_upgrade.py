@@ -18,7 +18,7 @@ from argparse import ArgumentParser
 
 UPGRADE_PATH = 'Upgrade'
 PATCH_FILE_NAME = '0001-Upgrade.patch'
-FILES_SERVER_URL = 'http://cocos.qudao.info'
+FILES_SERVER_URL = 'http://upgrade.download.cocos.com'
 version_files = ['cocos2d/cocos/cocos2d.cpp',
                  'cocos2d/cocos/2d/cocos2d.cpp',
                  'frameworks/cocos2d-x/cocos/cocos2d.cpp',
@@ -131,7 +131,7 @@ if __name__ == '__main__':
     upgradeVersion = upgradeVersion.split(' ')[1]
 
     # Download zip file or file.
-    patch_file_url = str.format('%s/ftp/B/%s/%s_%s/%s' %
+    patch_file_url = str.format('%s/B/%s/%s_%s/%s' %
                                 (FILES_SERVER_URL, project_type, project_version, upgradeVersion, PATCH_FILE_NAME))
     patch_path = str.format('%s/%s/%s_%s' % (os.path.realpath(os.path.dirname(__file__)), project_type, project_version, upgradeVersion))
     if not os.path.exists(patch_path):
