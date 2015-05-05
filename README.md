@@ -34,7 +34,7 @@
 
 -n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
 
-`特别提醒：升级后的工程目录在/Users/testProjectUpgrade/Target/testProject`
+`特别提醒：升级后的工程目录在/Users/testProjectUpgrade/Target`
 
 
 ##<a name="prepare">准备工作
@@ -141,6 +141,6 @@ B方案会替换引擎相关目录，自动合并新版本引擎源码和工程�
 
 -n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
 
--p 升级用补丁，升级用补丁的文件全路径。此文件可到[服务器](http://www.cocos2d-x.org)下载
+-p 升级用补丁，升级用补丁的文件全路径。
 
 `特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade`
