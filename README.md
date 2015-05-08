@@ -1,146 +1,92 @@
-#升级工具
-这是为cocos2d-x引擎开发者提供的升级工具，方便大家从低版本直接升级到最新版本的引擎（也支持升级到指定的引擎版本）。支持cocos2d-x/lua/js项目。
+# cocos upgrade
 
-这是一个脚本工具，在终端执行，目前仅支持Mac平台，windows平台支持开发中。升级范围包括ios/mac/android平台，win32/win8/linux未充分验证。
+## 简介
 
-##如何使用
+`cocos_upgrade.py` 是一个用于升级已有的 [cocos2d-x](https://github.com/cocos2d/cocos2d-x) 或 [cocos2d-js](https://github.com/cocos2d/cocos2d-js) 游戏工程中引擎版本的命令行工具。
 
-升级过程使用了一些辅助工具，点击查看[准备工作](#prepare)。
+## 适用范围
 
-#####如果你的游戏对引擎源码没有修改，或者只做过少量修改，推荐使用下面的命令行升级，简称为A方案：
+目前此工具适用的游戏工程：
 
-	$ python A/cocos_upgrade.py -d /Users/testProject -n testProject -v 3.5
+* 游戏工程使用的引擎版本为 3.x
+* 游戏工程是通过 `cocos new` 命令创建的。
+
+适用的系统环境：
+
+* Mac
+* Windows
+
+## 环境搭建
+
+工具需要使用以下的软件环境：
+
+1. Python 2.7 (目前只支持 Python 2.7 版本，不支持 Python 3.x 版本。[点此下载](https://www.python.org/downloads/))
+2. Git ([点此下载](http://git-scm.com/downloads))
+
+	* Mac 安装 Git 后，需要保证终端中可以执行 git 命令。
+	* Windows 安装 Git 后，需要将 `[Git 安装目录]/cmd` 这个路径添加到 Path 环境变量中，以保证在 cmd 中可以调用 git 命令。
+
+3. DiffMerge([点此下载](https://sourcegear.com/diffmerge/downloads.php))
+
+	* Mac 安装 DiffMerge 后，需要将 `DiffMerge.app/Contents/Resources/diffmerge.sh` 拷贝到 `/usr/local/bin` 或者 `/usr/bin` 目录下，以保证在终端可以执行 `diffmerge.sh` 脚本。
+	* Windows 安装 DiffMerge 后，需要将 `[DiffMerge 安装目录]` 添加到 Path 环境变量中，以保证在 cmd 中可以调用 `sgdm.exe`。
+
+## 使用方法
+
+1. 参数说明
 	
--d 游戏工程目录，请使用工程全路径。
+	```
+	usage: cocos_upgrade.py [-h] [-p PROJ_PATH] [-s SRC_ENGINE] [-d DST_ENGINE]
 
--n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
+	可用参数:
+  		-h, --help     显示帮助信息。
+  		-p PROJ_PATH   指定游戏工程路径（可以为相对路径或者绝对路径）
+  		-s SRC_ENGINE  指定原始版本引擎路径（可以为相对路径或者绝对路径）
+  		-d DST_ENGINE  指定目标版本引擎路径（可以为相对路径或者绝对路径）
+	```
 
--v 要升级的引擎版本，请查看[支持的版本](#jump2)。
+2. 执行命令
 
-`特别提醒：升级后的工程目录在/Users/testProjectUpgrade`
+	`python cocos_upgrade.py -p [工程路径] -s [原始引擎路径] -d [目标引擎路径]`
 
+3. 解决冲突
 
-#####如果你的游戏对引擎有修改，推荐使用下面的命令行升级，简称为B方案：
+	如果在升级过程中出现文件冲突，命令行窗口会逐个提示手动解决冲突。如下图所示：
 
+	命令行提示冲突:		
+	![conflict](docs/conflict.jpg)
 
-	$ python B/cocos_upgrade.py -s /Users/cocos2d-x-3.2 -d /Users/cocos2d-x-3.5 -p /Users/testProject -n testProject
-
--s 原引擎目录，请使用全路径。如果你的游戏基于cocos2d-x-3.2，请先下载解压到本地硬盘。[请到这里下载。](http://www.cocos2d-x.org/download/version)
-
--d 要升级引擎目录，请使用全路径。如果你的游戏要升级到cocos2d-x-3.5，请先下载解压到本地硬盘。[请到这里下载。](http://www.cocos2d-x.org/download/version)
-
-
--p 待升级的工程目录，请使用全路径。
-
--n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
-
-`特别提醒：升级后的工程目录在/Users/testProjectUpgrade/Target`
-
-
-##<a name="prepare">准备工作
-#####1 保证git能正常运行，执行如下命令行查看。
-	$ git version
-	git version 1.9.3 (Apple Git-50)
-#####2 把以下内容加入~/.bash_profile 或 ~/.zshrc
-
-	export LC_CTYPE=C 
-	export LANG=C
-
-如升级过程遇到下面这个问题，请检查上面的内容是否加入成功。
-
-sed: RE error: illegal byte sequence
-
-#####3 安装wiggle
-	$ sudo apt-get install -y wiggle
-	or
-	$ brew install -y wiggle
+	按回车进入手动解决冲突的界面:
+	![diffmerge](docs/diffmerge.jpg)
 	
-	$ wiggle --version
-	wiggle 1.0 2013-08-23 GPL-2+ http://neil.brown.name/wiggle/
+	需要处理的冲突为界面最左边竖条内标记为红色的部分。在解决冲突的界面中：
+
+	* 左边文件为游戏工程中的代码；
+	* 右边文件为引擎升级的改动代码；
+	* 中间文件为最终合并后的代码（只有此文件可以编辑）。
+		
+	冲突解决后，保存文件并关闭界面。命令行窗口会继续执行，直至所有冲突被解决。
+
+4. 查看升级结果
+
+	以上步骤执行完成后，游戏工程中的引擎版本就升级完成了。在原工程同级目录下会生成一个 `[工程名]_upgrade` 的文件夹，此文件夹就是升级后的引擎。如：
 	
-如果你没有brew，请运行下面的命令安装
-
-	ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-
-#####4 下载安装
-
-[点击下载Diffmerge](https://sourcegear.com/diffmerge/downloads.php)，这是一个免费软件。
-
-#####5 配置Diffmerge命令行
-	$ sudo cp /Applications/DiffMerge.app/Contents/Resources/diffmerge.sh /usr/bin
-	$ diffmerge.sh
+	* 原游戏工程路径为 `/Users/MyUserName/MyProjects/GameProject`
+	* 升级后的游戏工程路径为 `/Users/MyUserName/MyProjects/GameProject_upgrade`
 	
-#####6 安装python
-	$ python --version 
-	Python 2.7.6
+## 注意事项
 
-#####7 下载原引擎版本和目标引擎版本
-比如你的游戏基于cocos2d-x 3.2，希望升级到cocos2d-x 3.5，那就下载3.2和3.5。
+* 目前只支持使用 DiffMerge 做为解决文件冲突的界面化工具。
+* 在解决文件冲突的过程中，如果遇到 xcode 工程配置文件的冲突，建议打开冲突解决界面后，不进行手动操作，直接保存并标记为冲突已解决。然后在升级完成后，使用 xcode 打开有冲突的工程，重新添加源码以及资源文件即可。
 
-[请到这里下载。](http://www.cocos2d-x.org/download/version)
+## 实现方案说明
 
+此工具的实现逻辑如下：
 
-##<a name="jump2">支持的版本
-
-目前只支持从低版本升级到高版本，版本在以下范围内才能升级。
-
-	cocos2d-x(C++/Lua): 3.0 3.1 3.2 3.3 3.4 3.5
-	cocos2d-Js: v3.0 v3.1 v3.2 v3.3 v3.5
-	
-	
-如果你的版本不在以上范围内，也可以自己制作升级补丁进行，[自定义升级](#jump1)。
-
-	
-##升级说明
-A方案升级工具会在游戏工程基础上，自动合并新版本引擎源码和工程配置(.pbproj/.mk/.sln）等内容，同时会产生文件冲突（与修改引擎文件）。`请解决冲突后编译运行`。如果冲突太多，无法解决，请使用B方案。
-
-B方案会替换引擎相关目录，自动合并新版本引擎源码和工程配置(.pbproj/.mk/.sln）等内容，自动记录游戏工程中修改了引擎的代码，并通过Diffmerge工具对修改内容进行对比，帮助开发者合并代码。以下是Diffmerge工具的介绍
-
-#####Diffmerge
-窗口内有三个打开的文件界面，左边是你的游戏工程文件，右边是引擎HelloWorld工程文件（即默认初始代码），中间是升级后的游戏工程文件，我们分别称为L文件、R文件和C文件。
-
-
-只要三个文件中有任意两个内容不一致，Diffmerge就会用颜色标记出来，一般我们只需要处理界面最左边竖条内标记为`红色`的部分－－－那表示L与R不一致，同时L与C也不一样，这些就是开发者在原来引擎基础上修改的代码。开发者需要判断L文件中的内容，如何合并到C文件中。
-![Mou icon](https://github.com/calfjohn/cocosUpgrade/blob/SemiAutomatic/images/Compare3files.jpeg?raw=true)
-
-
-#####异常情况：
-
-这种表示二进制文件不同，这种情况不用关注，直接关闭退出Diffmerge。
-
-![Mou icon](https://github.com/calfjohn/cocosUpgrade/blob/SemiAutomatic/images/BinaryCompare.jpg?raw=true)
-
-
-这种表示在升级后的工程内，这个文件不存在了，开发者需要判断是否需要手动把这个文件从游戏工程中拷贝到升级后的工程内。处理完成后关闭这个提示。
-
-![Mou icon](https://github.com/calfjohn/cocosUpgrade/blob/SemiAutomatic/images/NotFoundFile.jpg?raw=true)
-
-
-##<a name="jump1">自定义升级
-例如，你的游戏工程是基于cocos2d-x 3.1.1开发，希望升级到3.5，那么你需要下载引擎Cocos2d-x 3.1.1和cocos2d-x 3.5到本地硬盘，利用下面的工具制作补丁文件。
-
-	$ python A/cocos_make_patch.py -s 3.1.1引擎目录 -d 3.5引擎目录 -o /Users/patchFilePath -l cpp
-
--s 引擎版本，请使用全路径。
-
--d 引擎版本，请使用全路径。
-
--o 升级文件输出目录
-
--l 工程类型，js/lua/cpp
-
-`生成的文件0001-Upgrade.patch在输出目录下`。
-
-最后调用cocos_upgrade2.py来调用补丁进行升级。
-
-	$ python A/cocos_upgrade2.py -d /Users/testProject -n testProject -p /Users/patchFilePath/0001-Upgrade.patch
-
-
--d 游戏工程目录，请使用工程全路径。
-
--n 游戏工程名称，请注意工程名有时与目录名称不一致，建议参考xcode工程名。
-
--p 升级用补丁，升级用补丁的文件全路径。
-
-`特别提醒：升级工作是在游戏工程的副本上进行的，副本目录是/Users/testProjectUpgrade`
+1. 从工程路径中解析工程相关的属性。
+2. 使用解析出的工程属性，从原始版本引擎中新建一个空白工程。并将此空白工程初始化为一个 git 仓库。
+3. 从 git 仓库的当前节点创建一个新的分支 upgrade_engine。
+4. 使用解析出的工程属性，从目标版本引擎中新建一个空白工程。并将此空白工程提交到 upgrade_engine 分支。
+5. 将游戏工程提交到 master 分支。
+6. 使用 `git merge` 命令将 upgrade_engine 分支合并到 master 分支。
+7. 如果合并过程中遇到冲突，则为这个 git 仓库配置 merge tool，并调用 `git mergetool` 开始逐个解决冲突。
