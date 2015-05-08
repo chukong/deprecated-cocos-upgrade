@@ -68,6 +68,8 @@ def os_is_mac():
     return sys.platform == 'darwin'
 
 def config_merge_tool(repo_path):
+    # TODO set the title for the merge files
+    # TODO make users config different merge tools
     if os_is_win32():
         diffmerge_cmd_path = r'sgdm.exe'
         cmd = 'git config --local merge.tool diffmerge'
@@ -359,7 +361,7 @@ def do_upgrade(proj_path, src_engine_path, dst_engine_path):
             config_merge_tool(work_dir)
             run_shell('git mergetool', cwd=work_dir)
         except:
-            print('There are conflicts not resolved. You should solve the conflicts manually.')
+            print('\nThere are conflicts not resolved. You should solve the conflicts manually.')
             pass
 
 if __name__ == '__main__':
