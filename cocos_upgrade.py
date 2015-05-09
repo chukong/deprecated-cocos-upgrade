@@ -68,22 +68,17 @@ def os_is_mac():
     return sys.platform == 'darwin'
 
 def config_merge_tool(repo_path):
-    # TODO set the title for the merge files
     # TODO make users config different merge tools
+    cmd = 'git config --local merge.tool diffmerge'
+    run_shell(cmd, cwd=repo_path)
     if os_is_win32():
         diffmerge_cmd_path = r'sgdm.exe'
-        cmd = 'git config --local merge.tool diffmerge'
-        run_shell(cmd, cwd=repo_path)
-
-        merge_cmd = r'\"%s\" --merge --result=\"$MERGED\" \"$LOCAL\" \"$(if test -f \"$BASE\"; then echo \"$BASE\"; else echo \"$LOCAL\"; fi)\" \"$REMOTE\"' % diffmerge_cmd_path
+        merge_cmd = r'\"%s\" --merge --result=\"$MERGED\" \"$LOCAL\" -t1=BeforeUpgrade -t2=Merged -t3=EngineUpgrade \"$(if test -f \"$BASE\"; then echo \"$BASE\"; else echo \"$LOCAL\"; fi)\" \"$REMOTE\"' % diffmerge_cmd_path
         cmd = 'git config mergetool.diffmerge.cmd "%s"' % merge_cmd
         run_shell(cmd, cwd=repo_path)
     else:
         diffmerge_cmd_path = 'diffmerge.sh'
-        cmd = 'git config --local merge.tool diffmerge'
-        run_shell(cmd, cwd=repo_path)
-
-        cmd = 'git config mergetool.diffmerge.cmd \'%s --merge --result="$MERGED" "$LOCAL" "$(if test -f "$BASE"; then echo "$BASE"; else echo "$LOCAL"; fi)" "$REMOTE"\'' % diffmerge_cmd_path
+        cmd = 'git config mergetool.diffmerge.cmd \'%s --merge --result="$MERGED" -t1=BeforeUpgrade -t2=Merged -t3=EngineUpgrade "$LOCAL" "$(if test -f "$BASE"; then echo "$BASE"; else echo "$LOCAL"; fi)" "$REMOTE"\'' % diffmerge_cmd_path
         run_shell(cmd, cwd=repo_path)
 
     cmd = 'git config --local mergetool.diffmerge.trustExitCode true'
@@ -416,18 +411,21 @@ if __name__ == '__main__':
     proj_path = os.path.expanduser(args.proj_path)
     if not os.path.isabs(proj_path):
         proj_path = os.path.abspath(proj_path)
+    proj_path = os.path.normpath(proj_path)
     if not check_path(proj_path):
         sys.exit(1)
 
     src_engine = os.path.expanduser(args.src_engine)
     if not os.path.isabs(src_engine):
         src_engine = os.path.abspath(src_engine)
+    src_engine = os.path.normpath(src_engine)
     if not check_path(src_engine):
         sys.exit(1)
 
     dst_engine = os.path.expanduser(args.dst_engine)
     if not os.path.isabs(dst_engine):
         dst_engine = os.path.abspath(dst_engine)
+    dst_engine = os.path.normpath(dst_engine)
     if not check_path(dst_engine):
         sys.exit(1)
 
