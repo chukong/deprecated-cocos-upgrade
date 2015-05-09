@@ -31,6 +31,8 @@
 	* Mac 安装 DiffMerge 后，需要将 `DiffMerge.app/Contents/Resources/diffmerge.sh` 拷贝到 `/usr/local/bin` 或者 `/usr/bin` 目录下，以保证在终端可以执行 `diffmerge.sh` 脚本。
 	* Windows 安装 DiffMerge 后，需要将 `[DiffMerge 安装目录]` 添加到 Path 环境变量中，以保证在 cmd 中可以调用 `sgdm.exe`。
 
+4. 游戏工程使用的引擎以及要升级的目标引擎。（cocos2d-x 与 cocos2d-js [点此下载](http://www.cocos2d-x.org/download) ）
+
 ## 使用方法
 
 1. 参数说明
