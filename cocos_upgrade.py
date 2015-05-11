@@ -362,7 +362,7 @@ def do_upgrade(proj_path, src_engine_path, dst_engine_path, ignore_version):
                 if version is not None:
                     src_engine_ver = version
                     break
-        print("src engine version : %s" % src_engine_ver)
+        # print("src engine version : %s" % src_engine_ver)
 
         # get the engine version of the dst engine
         dst_engine_ver = None
@@ -373,21 +373,31 @@ def do_upgrade(proj_path, src_engine_path, dst_engine_path, ignore_version):
                 if version is not None:
                     dst_engine_ver = version
                     break
-        print("dst engine version : %s" % dst_engine_ver)
+        # print("dst engine version : %s" % dst_engine_ver)
+
+        check_version_ret = True
 
         # compare the project engine version & src engine version
         if (proj_engine_ver is not None) and (src_engine_ver is not None):
             if proj_engine_ver != src_engine_ver:
                 print("The source engine version '%s' is different with the project engine version '%s'."
                       % (src_engine_ver, proj_engine_ver))
-                sys.exit(1)
+                check_version_ret = False
 
         # compare the dst engine version & src engine version
         if (dst_engine_ver is not None) and (src_engine_ver is not None):
             if dst_engine_ver == src_engine_ver:
                 print("The source engine version '%s' is same with the destination engine version '%s'."
                       % (src_engine_ver, dst_engine_ver))
-                sys.exit(1)
+                check_version_ret = False
+
+        if not check_version_ret:
+            print("\nIf you want to upgrade with:\n"
+                  "source engine path: %s\n"
+                  "destination engine path: %s\n"
+                  "Please add '-i' to ignore the engine version."
+                  % (src_engine_path, dst_engine_path))
+            sys.exit(1)
 
     temp_folder = os.path.join(os.path.dirname(proj_path), 'temp')
     try:
