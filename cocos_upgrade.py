@@ -98,6 +98,26 @@ def get_xml_attr(file_path, node_name, attr):
         pass
     return ret
 
+def get_engine_version(file_path, language):
+    if not os.path.isfile(file_path):
+        return None
+
+    if language == "js":
+        pattern = r".*#define[ \t]+ENGINE_VERSION[ \t]+\"(.*)\""
+    else:
+        pattern = r".*return[ \t]+\"(.*)\";"
+
+    ver = None
+    f = open(file_path)
+    for line in f.readlines():
+        match = re.match(pattern, line)
+        if match:
+            ver = match.group(1)
+            break
+    f.close()
+
+    return ver
+
 def get_bundle_id(plist_path):
     ret = None
     if os.path.isfile(plist_path):
@@ -128,6 +148,22 @@ class ProjectInfo(object):
     SCRIPT_IOS_INFO_PLIST = 'frameworks/runtime-src/proj.ios_mac/ios/Info.plist'
     SCRIPT_MAC_INFO_PLIST = 'frameworks/runtime-src/proj.ios_mac/mac/Info.plist'
 
+    # engine version file path
+    ENGINE_VERSION_FILES = {
+        'cpp' : [
+            'cocos2d/cocos/2d/cocos2d.cpp',
+            'cocos2d/cocos/cocos2d.cpp'
+        ],
+        'lua' : [
+            'frameworks/cocos2d-x/cocos/2d/cocos2d.cpp',
+            'frameworks/cocos2d-x/cocos/cocos2d.cpp'
+        ],
+        'js' : [
+            'frameworks/js-bindings/bindings/manual/ScriptingCore.h',
+            'frameworks/cocos2d-x/cocos/scripting/js-bindings/manual/ScriptingCore.h'
+        ]
+    }
+
     def __init__(self, proj_path):
         self.proj_path = proj_path
 
@@ -138,6 +174,7 @@ class ProjectInfo(object):
         self.proj_name = None
         self.ios_bundleid = None
         self.mac_bundleid = None
+        self.engine_version = None
 
         # check the project file
         proj_cfg_file = os.path.join(self.proj_path, ProjectInfo.PROJ_CFG_FILE)
@@ -194,6 +231,17 @@ class ProjectInfo(object):
         # TODO get mac bundle id from info.plist
         self.mac_bundleid = self.pkg_name
 
+        # get the engine version of project
+        if self.get_language() is not None:
+            version_files = ProjectInfo.ENGINE_VERSION_FILES[self.get_language()]
+            for f in version_files:
+                full_path = os.path.join(self.proj_path, f)
+                if os.path.isfile(full_path):
+                    version = get_engine_version(full_path, self.get_language())
+                    if version is not None:
+                        self.engine_version = version
+                        break
+
     def do_check(self):
         ret = True
         if self.get_proj_name() is None:
@@ -222,6 +270,18 @@ class ProjectInfo(object):
 
     def get_mac_bundleid(self):
         return self.mac_bundleid
+
+    def get_engine_version(self):
+        return self.engine_version
+
+    def print_info(self):
+        print("project name : %s" % self.get_proj_name())
+        print("language : %s" % self.get_language())
+        print("package name : %s" % self.get_pkg_name())
+        print("is runtime : %s" % self.is_runtime_proj())
+        print("ios bundle id : %s" % self.get_ios_bundleid())
+        print("mac bundle id : %s" % self.get_mac_bundleid())
+        print("engine version : %s" % self.get_engine_version())
 
 def check_path(path):
     ret = True
@@ -259,26 +319,85 @@ UPGRADE_BRANCH_NAME = 'upgrade-engine'
 CONSOLE_PATH = 'tools/cocos2d-console/bin/cocos'
 UPGRADE_DIR_SUFFIX = '_upgrade'
 
-def do_upgrade(proj_path, src_engine_path, dst_engine_path):
+X_VERSION_FILES = [
+    'cocos/2d/cocos2d.cpp',
+    'cocos/cocos2d.cpp'
+]
+
+JS_VERSION_FILES = [
+    'frameworks/js-bindings/bindings/manual/ScriptingCore.h',
+    'frameworks/cocos2d-x/cocos/scripting/js-bindings/manual/ScriptingCore.h'
+]
+
+def do_upgrade(proj_path, src_engine_path, dst_engine_path, ignore_version):
     # print("project path : %s" % proj_path)
     # print("src engine : %s" % src_engine_path)
     # print("dst engine : %s" % dst_engine_path)
 
     proj_info = ProjectInfo(proj_path)
-    # print("project name : %s" % proj_info.get_proj_name())
-    # print("language : %s" % proj_info.get_language())
-    # print("package name : %s" % proj_info.get_pkg_name())
-    # print("is runtime : %s" % proj_info.is_runtime_proj())
-    # print("ios bundle id : %s" % proj_info.get_ios_bundleid())
-    # print("mac bundle id : %s" % proj_info.get_mac_bundleid())
+    # proj_info.print_info()
 
     # check the project information
     if not proj_info.do_check():
         sys.exit(1)
 
-    # TODO check the engine version
+    # check the engine version
     # 1. The engine version of project should same with the src engine version
     # 2. The src engine version should different with dst engine version
+    if not ignore_version:
+        # get the engine version of the project
+        proj_engine_ver = proj_info.get_engine_version()
+
+        if proj_info.get_language() == 'js':
+            engine_version_files = JS_VERSION_FILES
+        else:
+            engine_version_files = X_VERSION_FILES
+
+        # get the engine version of the src engine
+        src_engine_ver = None
+        for f in engine_version_files:
+            src_full_path = os.path.join(src_engine_path, f)
+            if os.path.isfile(src_full_path):
+                version = get_engine_version(src_full_path, proj_info.get_language())
+                if version is not None:
+                    src_engine_ver = version
+                    break
+        # print("src engine version : %s" % src_engine_ver)
+
+        # get the engine version of the dst engine
+        dst_engine_ver = None
+        for f in engine_version_files:
+            dst_full_path = os.path.join(dst_engine_path, f)
+            if os.path.isfile(dst_full_path):
+                version = get_engine_version(dst_full_path, proj_info.get_language())
+                if version is not None:
+                    dst_engine_ver = version
+                    break
+        # print("dst engine version : %s" % dst_engine_ver)
+
+        check_version_ret = True
+
+        # compare the project engine version & src engine version
+        if (proj_engine_ver is not None) and (src_engine_ver is not None):
+            if proj_engine_ver != src_engine_ver:
+                print("The source engine version '%s' is different with the project engine version '%s'."
+                      % (src_engine_ver, proj_engine_ver))
+                check_version_ret = False
+
+        # compare the dst engine version & src engine version
+        if (dst_engine_ver is not None) and (src_engine_ver is not None):
+            if dst_engine_ver == src_engine_ver:
+                print("The source engine version '%s' is same with the destination engine version '%s'."
+                      % (src_engine_ver, dst_engine_ver))
+                check_version_ret = False
+
+        if not check_version_ret:
+            print("\nIf you want to upgrade with:\n"
+                  "source engine path: %s\n"
+                  "destination engine path: %s\n"
+                  "Please add '-i' to ignore the engine version."
+                  % (src_engine_path, dst_engine_path))
+            sys.exit(1)
 
     temp_folder = os.path.join(os.path.dirname(proj_path), 'temp')
     try:
@@ -394,6 +513,7 @@ if __name__ == '__main__':
     parser.add_argument('-p', dest='proj_path', help='Specify the project path.')
     parser.add_argument('-s', dest='src_engine', help='Specify the source engine path.')
     parser.add_argument('-d', dest='dst_engine', help='Specify the destination engine path.')
+    parser.add_argument('-i', action='store_true', dest='ignore_version', help='Not check the version of specified project & engine.')
     (args, unknown) = parser.parse_known_args()
 
     if args.proj_path is None:
@@ -430,4 +550,4 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # do upgrade
-    do_upgrade(proj_path, src_engine, dst_engine)
+    do_upgrade(proj_path, src_engine, dst_engine, args.ignore_version)
