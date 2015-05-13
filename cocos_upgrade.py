@@ -68,22 +68,17 @@ def os_is_mac():
     return sys.platform == 'darwin'
 
 def config_merge_tool(repo_path):
-    # TODO set the title for the merge files
     # TODO make users config different merge tools
+    cmd = 'git config --local merge.tool diffmerge'
+    run_shell(cmd, cwd=repo_path)
     if os_is_win32():
         diffmerge_cmd_path = r'sgdm.exe'
-        cmd = 'git config --local merge.tool diffmerge'
-        run_shell(cmd, cwd=repo_path)
-
-        merge_cmd = r'\"%s\" \"$LOCAL\" \"$BASE\" \"$REMOTE\" --result=\"$MERGED\"' % diffmerge_cmd_path
+        merge_cmd = r'\"%s\" --merge --result=\"$MERGED\" \"$LOCAL\" -t1=BeforeUpgrade -t2=Merged -t3=EngineUpgrade \"$(if test -f \"$BASE\"; then echo \"$BASE\"; else echo \"$LOCAL\"; fi)\" \"$REMOTE\"' % diffmerge_cmd_path
         cmd = 'git config mergetool.diffmerge.cmd "%s"' % merge_cmd
         run_shell(cmd, cwd=repo_path)
     else:
         diffmerge_cmd_path = 'diffmerge.sh'
-        cmd = 'git config --local merge.tool diffmerge'
-        run_shell(cmd, cwd=repo_path)
-
-        cmd = 'git config mergetool.diffmerge.cmd \'%s --merge --result="$MERGED" "$LOCAL" "$(if test -f "$BASE"; then echo "$BASE"; else echo "$LOCAL"; fi)" "$REMOTE"\'' % diffmerge_cmd_path
+        cmd = 'git config mergetool.diffmerge.cmd \'%s --merge --result="$MERGED" -t1=BeforeUpgrade -t2=Merged -t3=EngineUpgrade "$LOCAL" "$(if test -f "$BASE"; then echo "$BASE"; else echo "$LOCAL"; fi)" "$REMOTE"\'' % diffmerge_cmd_path
         run_shell(cmd, cwd=repo_path)
 
     cmd = 'git config --local mergetool.diffmerge.trustExitCode true'
@@ -199,6 +194,17 @@ class ProjectInfo(object):
         # TODO get mac bundle id from info.plist
         self.mac_bundleid = self.pkg_name
 
+    def do_check(self):
+        ret = True
+        if self.get_proj_name() is None:
+            print("Get the project name failed.")
+            ret = False
+        elif self.get_language() is None:
+            print("Get the language of project failed.")
+            ret = False
+
+        return ret
+
     def get_language(self):
         return self.proj_lang
 
@@ -266,26 +272,41 @@ def do_upgrade(proj_path, src_engine_path, dst_engine_path):
     # print("ios bundle id : %s" % proj_info.get_ios_bundleid())
     # print("mac bundle id : %s" % proj_info.get_mac_bundleid())
 
-    # TODO check the project info
+    # check the project information
+    if not proj_info.do_check():
+        sys.exit(1)
+
+    # TODO check the engine version
+    # 1. The engine version of project should same with the src engine version
+    # 2. The src engine version should different with dst engine version
 
     temp_folder = os.path.join(os.path.dirname(proj_path), 'temp')
+    try:
+        if os.path.exists(temp_folder):
+            shutil.rmtree(temp_folder)
+    except:
+        print("Delete folder %s failed. Please delete/rename it first." % temp_folder)
+        sys.exit(1)
 
-    if os.path.exists(temp_folder):
-        shutil.rmtree(temp_folder)
+    work_dir = '%s%s' % (proj_path, UPGRADE_DIR_SUFFIX)
+    try:
+        if os.path.exists(work_dir):
+            shutil.rmtree(work_dir)
+    except:
+        print("Delete folder %s failed. Please delete/rename it first." % work_dir)
+        sys.exit(1)
 
     # create a new project with src engine
     src_cocos = os.path.join(src_engine_path, CONSOLE_PATH)
     new_proj_with_info(proj_info, src_cocos, temp_folder)
 
     # copy the new project to upgrade folder
-    work_dir = '%s%s' % (proj_path, UPGRADE_DIR_SUFFIX)
     src_empty_proj_path = os.path.join(temp_folder, proj_info.get_proj_name())
     cpy_cfg = {
         'from' : src_empty_proj_path,
         'to' : work_dir
     }
-    if os.path.exists(work_dir):
-        shutil.rmtree(work_dir)
+
     excopy.copy_files_with_config(cpy_cfg, src_empty_proj_path, work_dir)
     if os.path.exists(src_empty_proj_path):
         shutil.rmtree(src_empty_proj_path)
@@ -390,22 +411,23 @@ if __name__ == '__main__':
     proj_path = os.path.expanduser(args.proj_path)
     if not os.path.isabs(proj_path):
         proj_path = os.path.abspath(proj_path)
+    proj_path = os.path.normpath(proj_path)
     if not check_path(proj_path):
         sys.exit(1)
 
     src_engine = os.path.expanduser(args.src_engine)
     if not os.path.isabs(src_engine):
         src_engine = os.path.abspath(src_engine)
+    src_engine = os.path.normpath(src_engine)
     if not check_path(src_engine):
         sys.exit(1)
 
     dst_engine = os.path.expanduser(args.dst_engine)
     if not os.path.isabs(dst_engine):
         dst_engine = os.path.abspath(dst_engine)
+    dst_engine = os.path.normpath(dst_engine)
     if not check_path(dst_engine):
         sys.exit(1)
 
-    # TODO check the src engine version & dst engine version
-    # should not be same
-
+    # do upgrade
     do_upgrade(proj_path, src_engine, dst_engine)
