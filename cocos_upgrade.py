@@ -18,15 +18,21 @@ import re
 from xml.dom import minidom
 from argparse import ArgumentParser
 
-def run_shell(cmd, cwd=None):
+def run_shell(cmd, cwd=None, getOutput=False):
     print('running : %s' % cmd)
-    p = subprocess.Popen(cmd, shell=True, cwd=cwd)
-    p.wait()
+
+    if getOutput:
+        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True, cwd=cwd)
+        ret, err = p.communicate()
+    else:
+        p = subprocess.Popen(cmd, shell=True, cwd=cwd)
+        p.wait()
+        ret = p.returncode
 
     if p.returncode:
         raise subprocess.CalledProcessError(returncode=p.returncode, cmd=cmd)
 
-    return p.returncode
+    return ret
 
 def remove_dir_except(root_dir, excpets):
     filelist = os.listdir(root_dir)
@@ -484,8 +490,11 @@ def do_upgrade(proj_path, src_engine_path, dst_engine_path, ignore_version):
     }
     excopy.copy_files_with_config(cpy_cfg, proj_path, work_dir)
 
-    # commit files
-    commit_files_with_msg(work_dir, "Project development")
+    # check if there is any changes
+    output = run_shell('git status --porcelain', cwd=work_dir, getOutput=True)
+    if (output is not None) and (len(output) > 0):
+        # commit files
+        commit_files_with_msg(work_dir, "Project development")
 
     # merge
     has_conflict = False
