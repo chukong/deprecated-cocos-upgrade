@@ -2,7 +2,7 @@
 
 ## 简介
 
-`cocos_upgrade.py` 是一个用于升级已有的 [cocos2d-x](https://github.com/cocos2d/cocos2d-x) 或 [cocos2d-js](https://github.com/cocos2d/cocos2d-js) 游戏工程中引擎版本的命令行工具。
+`cocos_upgrade.py` 是一个用于升级已有的 Cocos 游戏工程中引擎版本的命令行工具。
 
 ## 适用范围
 
